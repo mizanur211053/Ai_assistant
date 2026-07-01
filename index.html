@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI ASSISTANT</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-size: 0.9rem; }
+        .message-bubble { 
+            max-width: 85%; 
+            padding: 8px 12px;
+            font-size: 0.85rem; 
+            line-height: 1.4;
+        }
+        #chat-box { scroll-behavior: smooth; }
+    </style>
+</head>
+<body class="bg-slate-50 h-screen flex flex-col items-center p-2">
+
+    <div class="w-full max-w-lg bg-white h-full flex flex-col rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        
+        <!-- বড় হেডার -->
+        <div class="p-4 text-center bg-white border-b border-slate-100">
+            <h1 class="text-2xl font-extrabold text-slate-800 tracking-tight">AI ASSISTANT</h1>
+            <div class="flex items-center justify-center gap-2 mt-1">
+                <div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                <span class="text-[10px] text-slate-400 font-medium uppercase">Movixuniverse</span>
+            </div>
+        </div>
+
+        <!-- চ্যাট এরিয়া -->
+        <div id="chat-box" class="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50">
+            <div class="message-bubble bg-slate-200 text-slate-800 rounded-2xl rounded-tl-none">হ্যালো! আমি আপনার এআই সহকারী। কীভাবে সাহায্য করতে পারি?</div>
+        </div>
+
+        <!-- ইনপুট ফর্ম -->
+        <form id="chat-form" class="p-3 border-t border-slate-100 flex gap-2 bg-white">
+            <input type="text" id="user-input" class="flex-1 text-sm border-none bg-slate-100 rounded-full px-4 py-2 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="লিখুন..." required>
+            <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-blue-700">পাঠান</button>
+        </form>
+    </div>
+
+    <script>
+        const chatForm = document.getElementById('chat-form');
+        const chatBox = document.getElementById('chat-box');
+        const userInput = document.getElementById('user-input');
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = userInput.value.trim();
+            if(!message) return;
+
+            // ইউজার মেসেজ
+            chatBox.innerHTML += `<div class="flex justify-end"><div class="message-bubble bg-blue-600 text-white rounded-2xl rounded-tr-none">${message}</div></div>`;
+            userInput.value = '';
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message })
+                });
+                const data = await response.json();
+                
+                // এআই রেসপন্স
+                chatBox.innerHTML += `<div class="flex justify-start"><div class="message-bubble bg-slate-200 text-slate-800 rounded-2xl rounded-tl-none">${data.response}</div></div>`;
+            } catch (err) {
+                chatBox.innerHTML += `<div class="text-red-400 text-xs text-center">সার্ভার এরর।</div>`;
+            }
+            chatBox.scrollTop = chatBox.scrollHeight;
+        });
+    </script>
+</body>
+</html>
