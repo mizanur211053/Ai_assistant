@@ -2,7 +2,8 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
   
   const { message } = req.body;
-  const apiKey = process.env.GEMINI_API_KEY; 
+  // এখানে GEMINI_API_KEY এর জায়গায় আপনার আসল কী-টি বসিয়ে দিন
+  const apiKey = "AQ.Ab8RN6LM7ZJbZNNgSeV2OzrmbgeVCmwCInbzUGD8vAYU4lRl1A"; 
 
   try {
     const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
@@ -12,9 +13,13 @@ export default async function handler(req, res) {
     });
 
     const data = await response.json();
-    const aiResponse = data.candidates[0].content.parts[0].text;
-    res.status(200).json({ response: aiResponse });
+    
+    if (data.candidates && data.candidates[0].content.parts[0].text) {
+        res.status(200).json({ response: data.candidates[0].content.parts[0].text });
+    } else {
+        res.status(500).json({ response: "রেসপন্স পাওয়া যায়নি।" });
+    }
   } catch (error) {
-    res.status(500).json({ response: "এপিআই এরর হয়েছে। দয়া করে আবার চেষ্টা করুন।" });
+    res.status(500).json({ response: "এরর: " + error.message });
   }
 }
